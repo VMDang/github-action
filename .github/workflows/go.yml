@@ -3,11 +3,7 @@
 
 name: Go
 
-on:
-  push:
-    branches: [ $default-branch ]
-  pull_request:
-    branches: [ $default-branch ]
+on: workflow_dispatch
 
 jobs:
 
@@ -24,5 +20,18 @@ jobs:
     - name: Build
       run: go build -v ./...
 
+  test:
+    env:
+        APP_NAME: "My App"
+    runs-on: ubuntu-lastest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.23.4'
     - name: Test
-      run: go test -v ./...
+      run: 
+        echo "--------------Start of Test job-----------"
+        echo $APP_NAME
+        go test -v ./...
