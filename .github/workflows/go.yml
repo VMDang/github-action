@@ -63,6 +63,7 @@ jobs:
         cd scripts
         ls -la
         chmod +x install_claude.sh
+        npm --version
         ./install_claude.sh
 
 
