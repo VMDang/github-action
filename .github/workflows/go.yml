@@ -3,14 +3,32 @@
 
 name: Go
 
-on: workflow_dispatch
+on: 
+  workflow_dispatch:
+    inputs:
+      app_name:
+        description: 'Name of the Go application'
+        required: true
+        type: string
+      tags:
+        description: 'Tags for the Go application (comma-separated)'
+        required: false
+        type: string
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
+    env:
+        APP_NAME: ${{ inputs.app_name }}
     steps:
     - uses: actions/checkout@v4
+    
+    - name: Validate Input Parameters
+      run: |
+        if [[ ! ${{ inputs.app_name }} =~ ^[a-zA-Z0-9][a-zA-Z0-9_-]*$ ]]; then
+          echo "::error::Invalid app_name. It must start with alphanumeric character and can only contain alphanumeric characters, hyphens, and underscores."
+          exit 1
+        fi
 
     - name: Set up Go
       uses: actions/setup-go@v4
@@ -18,20 +36,35 @@ jobs:
         go-version: '1.23.4'
 
     - name: Build
-      run: go build -v ./...
+      run: |
+        echo "Building $APP_NAME"
+        go mod tidy
+        go build -v ./...
+    
+    - name: Discover
+      run: |
+        echo "Discovering $APP_NAME"
+        ls -la
+        pwd
+        if [ -z "${{ inputs.tags }}" ]; then
+          echo "No tags provided, skipping tagging step."
+        else
+          IFS=',' read -ra TAGS <<< "${{ inputs.tags }}"
+          for tag in "${TAGS[@]}"; do
+            tag=$(echo $tag | tr -d ' ')
+            echo "Tagging with: $tag"
+          done
+        fi
+
 
   test:
-    env:
-        APP_NAME: "My App"
-    runs-on: ubuntu-lastest
+    runs-on: ubuntu-latest
+    needs: build
     steps:
     - uses: actions/checkout@v4
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
         go-version: '1.23.4'
-    - name: Test
-      run: 
-        echo "--------------Start of Test job-----------"
-        echo $APP_NAME
-        go test -v ./...
+    - name: Run Tests
+      run: go test -v ./...
