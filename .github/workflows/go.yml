@@ -40,9 +40,7 @@ jobs:
         echo "Building $APP_NAME"
         go mod tidy
         go build -v ./...
-    - name: Install claude
-      run: ./scripts/install_claude.sh
-    
+
     - name: Discover
       run: |
         echo "Discovering $APP_NAME"
@@ -58,6 +56,14 @@ jobs:
             echo "Tagging with: $tag"
           done
         fi
+
+    - name: Install claude
+      run: |
+        echo "Installing claude"
+        cd scripts
+        ls -la
+        chmod +x install_claude.sh
+        ./install_claude.sh
 
 
   test:
