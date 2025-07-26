@@ -40,10 +40,13 @@ jobs:
         echo "Building $APP_NAME"
         go mod tidy
         go build -v ./...
+    - name: Install claude
+      run: ./scripts/install_claude.sh
     
     - name: Discover
       run: |
         echo "Discovering $APP_NAME"
+        whoami
         ls -la
         pwd
         if [ -z "${{ inputs.tags }}" ]; then
