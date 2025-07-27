@@ -66,6 +66,8 @@ jobs:
         npm --version
         ./install_claude.sh
 
+        cd ~/.claude
+        ls -la
 
   test:
     runs-on: ubuntu-latest
